@@ -5,7 +5,7 @@ class void:
 	"""
 	Class for calculating the positions of voids
 	"""
-	def __init__(self, ownerComp):
+	def __init__(self):
 
 		# attributes:
 		# self.N = self.ownerComp.par.Numvoid.val
