@@ -18,8 +18,9 @@ setup(
     long_description=readme,
     author='Akira Shioyoke',
     author_email='s.akira2986@gmail.com',
+    install_requires=['numpy'],
     url='https://github.com/syoukera/void_py',
     license=license,
-    packages=find_packages(exclude=('numpy'))
+    packages=find_packages()
 )
 
