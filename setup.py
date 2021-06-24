@@ -12,14 +12,14 @@ with open('LICENSE') as f:
     license = f.read()
 
 setup(
-    name='sample',
-    version='0.1.0',
-    description='Sample package for Python-Guide.org',
+    name='void_py',
+    version='0.0.1',
+    description='A package for calculating positons of voids',
     long_description=readme,
-    author='Kenneth Reitz',
-    author_email='me@kennethreitz.com',
-    url='https://github.com/kennethreitz/samplemod',
+    author='Akira Shioyoke',
+    author_email='s.akira2986@gmail.com',
+    url='https://github.com/syoukera/void_py',
     license=license,
-    packages=find_packages(exclude=('tests', 'docs'))
+    packages=find_packages(exclude=('numpy'))
 )
 
