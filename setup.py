@@ -12,14 +12,14 @@ with open('LICENSE') as f:
     license = f.read()
 
 setup(
-    name='void_py',
+    name='boid_py',
     version='0.0.1',
-    description='A package for calculating positons of voids',
+    description='A package for calculating positons of boids',
     long_description=readme,
     author='Akira Shioyoke',
     author_email='s.akira2986@gmail.com',
     install_requires=['numpy'],
-    url='https://github.com/syoukera/void_py',
+    url='https://github.com/syoukera/boid_py',
     license=license,
     packages=find_packages()
 )

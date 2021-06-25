@@ -1,15 +1,14 @@
 
 import numpy as np
 
-class void:
+class boid:
 	"""
-	Class for calculating the positions of voids
+	Class for calculating the positions of boids
 	"""
-	def __init__(self):
+	def __init__(self, num_boid=100):
 
 		# attributes:
-		# self.N = self.ownerComp.par.Numvoid.val
-		self.N = 100
+		self.N = num_boid
 		# strength of force
 		self.cohesion_force = 0.0008
 		self.separation_force = 0.15

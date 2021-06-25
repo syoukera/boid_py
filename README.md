@@ -1,3 +1,3 @@
-# void_py
+# boid_py
 
-A package for calculating positions of void
+A package for calculating positions of boid
