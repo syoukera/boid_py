@@ -30,7 +30,7 @@ class void:
 		self.boundary_force = 0.001
 
 		# array for positions and distance
-		self.X = np.random.rand(self.N, 3)*2 - 1
+		self.x = np.random.rand(self.N, 3)*2 - 1
 		self.v = (np.random.rand(self.N, 3)*2 - 1)*self.min_vel
 		self.r = np.empty((self.N, 3))
 
@@ -42,10 +42,10 @@ class void:
 
 	def update(self):
 		for i in range(self.N):
-			x_this = self.X[i]
+			x_this = self.x[i]
 			v_this = self.v[i]
 			
-			x_that = np.delete(self.X, i, axis=0)
+			x_that = np.delete(self.x, i, axis=0)
 			v_that = np.delete(self.v, i, axis=0)
 			
 			distance = np.linalg.norm(x_that - x_this, axis=1)
@@ -71,4 +71,4 @@ class void:
 			elif (v_abs > self.max_vel):
 				self.v[i] = self.max_vel * self.v[i] / v_abs
 
-		self.X += self.v
+		self.x += self.v
