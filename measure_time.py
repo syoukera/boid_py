@@ -3,7 +3,7 @@ import pstats
 
 import boid_py
 
-boid = boid_py.boid(num_boid=200)
+boid = boid_py.boid(num_boid=1000)
 
 def Main():
     
