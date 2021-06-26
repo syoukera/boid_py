@@ -57,11 +57,11 @@ class boid:
 			
 			coh_agents_x = x_that[ (distance < self.cohesion_distance) & (angle < self.cohesion_angle)]
 			sep_agents_x = x_that[ (distance < self.separation_distance) & (angle < self.separation_angle)]
-			ali_agents_x = v_that[ (distance < self.alignment_distance) & (angle < self.alignment_angle)]
+			ali_agents_v = v_that[ (distance < self.alignment_distance) & (angle < self.alignment_angle)]
 
 			self.dv_coh[i] = self.cohesion_force * (cp.average(coh_agents_x, axis=0) - x_this) if (len(coh_agents_x) > 0) else 0
 			self.dv_sep[i] = self.separation_force * (cp.average(sep_agents_x, axis=0) - x_this) if (len(sep_agents_x) > 0) else 0
-			self.dv_ali[i] = self.alignment_force * (cp.average(coh_agents_x, axis=0) - v_this) if (len(ali_agents_x) > 0) else 0
+			self.dv_ali[i] = self.alignment_force * (cp.average(ali_agents_v, axis=0) - v_this) if (len(ali_agents_v) > 0) else 0
 			
 			dist_center = cp.linalg.norm(x_this)
 			self.dv_boundary[i] = - self.boundary_force * x_this * (dist_center - 1) / dist_center if (dist_center > 1) else 0
