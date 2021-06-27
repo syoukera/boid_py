@@ -113,14 +113,26 @@ class boid:
 			).T
 		self.dv_boundary[dist_center_bool] = 0.0
 
-		for i in range(self.N):
-			x_this = self.x[i]
-			v_this = self.v[i]
+		# Update v
+		self.v += self.dv_coh + self.dv_sep + self.dv_ali + self.dv_boundary
+		
+		v_abs = np.linalg.norm(self.v, axis=1)
+
+		min_vel_bool = (v_abs < self.min_vel)
+		self.v[min_vel_bool] = self.min_vel*np.divide(self.v[min_vel_bool].T, v_abs[min_vel_bool]).T
+		max_vel_bool = (v_abs > self.max_vel)
+		self.v[max_vel_bool] = self.max_vel*np.divide(self.v[max_vel_bool].T, v_abs[max_vel_bool]).T
+
+		self.x += self.v
+		
+		# for i in range(self.N):
+		# 	x_this = self.x[i]
+		# 	v_this = self.v[i]
 			
 			# x_that = np.delete(self.x, i, axis=0)
 			# v_that = np.delete(self.v, i, axis=0)
-			x_that = self.x
-			v_that = self.v
+			# x_that = self.x
+			# v_that = self.v
 
 			# self.diff_x[i] = x_that - x_this
 			
@@ -139,12 +151,12 @@ class boid:
 			# dist_center = np.linalg.norm(x_this)
 			# self.dv_boundary[i] = - self.boundary_force * x_this * (dist_center - 1) / dist_center if (dist_center > 1) else 0
 
-		self.v += self.dv_coh + self.dv_sep + self.dv_ali + self.dv_boundary
-		for i in range(self.N):
-			v_abs = np.linalg.norm(self.v[i])
-			if (v_abs < self.min_vel):
-				self.v[i] = self.min_vel * self.v[i] / v_abs
-			elif (v_abs > self.max_vel):
-				self.v[i] = self.max_vel * self.v[i] / v_abs
+		# self.v += self.dv_coh + self.dv_sep + self.dv_ali + self.dv_boundary
+		# for i in range(self.N):
+		# 	v_abs = np.linalg.norm(self.v[i])
+		# 	if (v_abs < self.min_vel):
+		# 		self.v[i] = self.min_vel * self.v[i] / v_abs
+		# 	elif (v_abs > self.max_vel):
+		# 		self.v[i] = self.max_vel * self.v[i] / v_abs
 
-		self.x += self.v
+		# self.x += self.v
