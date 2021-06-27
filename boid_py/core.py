@@ -33,6 +33,11 @@ class boid:
 		self.v = (np.random.rand(self.N, 3)*2 - 1)*self.min_vel
 		self.r = np.empty((self.N, 3))
 
+		# array for tensor calculation
+		self.diff_x = np.zeros((self.N, self.N, 3))
+		self.distance = np.empty((self.N, self.N))
+		self.angle = np.empty((self.N, self.N))
+		
 		# array for three forces
 		self.dv_coh = np.empty((self.N, 3))
 		self.dv_sep = np.empty((self.N, 3))
@@ -40,20 +45,28 @@ class boid:
 		self.dv_boundary = np.empty((self.N, 3))
 
 	def update(self):
+		self.diff_x *= 0.0
+		self.diff_x += self.x.reshape((-1, self.N, 3))
+		self.diff_x -= self.x.reshape((self.N, -1, 3))
+
 		for i in range(self.N):
 			x_this = self.x[i]
 			v_this = self.v[i]
 			
-			x_that = np.delete(self.x, i, axis=0)
-			v_that = np.delete(self.v, i, axis=0)
+			# x_that = np.delete(self.x, i, axis=0)
+			# v_that = np.delete(self.v, i, axis=0)
+			x_that = self.x
+			v_that = self.v
+
+			# self.diff_x[i] = x_that - x_this
 			
-			distance = np.linalg.norm(x_that - x_this, axis=1)
-			angle = np.arccos(np.dot(v_this, (x_that-x_this).T) / (np.linalg.norm(v_this) * \
-				    np.linalg.norm((x_that-x_this), axis=1)))
+			self.distance[i] = np.linalg.norm(self.diff_x[i], axis=1)
+			self.angle[i] = np.arccos(np.dot(v_this, (self.diff_x[i]).T) / (np.linalg.norm(v_this) * \
+				    np.linalg.norm((self.diff_x[i]), axis=1)))
 			
-			coh_agents_x = x_that[ (distance < self.cohesion_distance) & (angle < self.cohesion_angle)]
-			sep_agents_x = x_that[ (distance < self.separation_distance) & (angle < self.separation_angle)]
-			ali_agents_v = v_that[ (distance < self.alignment_distance) & (angle < self.alignment_angle)]
+			coh_agents_x = x_that[ (self.distance[i] < self.cohesion_distance) &   (self.angle[i] < self.cohesion_angle)]
+			sep_agents_x = x_that[ (self.distance[i] < self.separation_distance) & (self.angle[i] < self.separation_angle)]
+			ali_agents_v = v_that[ (self.distance[i] < self.alignment_distance) &  (self.angle[i] < self.alignment_angle)]
 
 			self.dv_coh[i] = self.cohesion_force * (np.average(coh_agents_x, axis=0) - x_this) if (len(coh_agents_x) > 0) else 0
 			self.dv_sep[i] = self.separation_force * (np.average(sep_agents_x, axis=0) - x_this) if (len(sep_agents_x) > 0) else 0
