@@ -84,17 +84,26 @@ class boid:
 		
 		self.dv_sep = self.separation_force*(np.divide(np.sum(self.sep_agents_x, axis=1).T, sep_agents_num).T - self.x)
 
-		# # Alignment
-		# coh_agents_bool = (self.distance > self.cohesion_distance) | (self.angle > self.cohesion_angle)
+		# Alignment
+		ali_agents_bool = (self.distance > self.alignment_distance) | (self.angle > self.alignment_angle)
 
-		# self.coh_agents_x *= 0.0
-		# self.coh_agents_x += self.x
-		# self.coh_agents_x[coh_agents_bool] = 0.0
+		self.ali_agents_v *= 0.0
+		self.ali_agents_v += self.v
+		self.ali_agents_v[ali_agents_bool] = 0.0
 		
-		# coh_agents_num = coh_agents_bool.shape[1] - np.count_nonzero(coh_agents_bool, axis=1)
-		# coh_agents_num[coh_agents_num == 0] = 1
+		ali_agents_num = ali_agents_bool.shape[1] - np.count_nonzero(ali_agents_bool, axis=1)
+		ali_agents_num[ali_agents_num == 0] = 1
 		
-		# self.dv_coh = self.cohesion_force*(np.divide(np.sum(self.coh_agents_x, axis=1).T, coh_agents_num).T - self.x)
+		self.dv_ali = self.alignment_force*(np.divide(np.sum(self.ali_agents_v, axis=1).T, ali_agents_num).T - self.v)
+
+		# Boundary
+		self.dist_center = np.linalg.norm(self.x, axis=1)
+		dist_center_bool = (self.dist_center < 1)
+		self.dv_boundary = - self.boundary_force*np.multiply(
+				self.x.T, 
+				np.divide(self.dist_center-1, self.dist_center)
+			).T
+		self.dv_boundary[dist_center_bool] = 0.0
 
 		for i in range(self.N):
 			x_this = self.x[i]
@@ -113,14 +122,14 @@ class boid:
 			
 			# coh_agents_x = x_that[ (self.distance[i] < self.cohesion_distance) &   (self.angle[i] < self.cohesion_angle)]
 			# sep_agents_x = x_that[ (self.distance[i] < self.separation_distance) & (self.angle[i] < self.separation_angle)]
-			ali_agents_v = v_that[ (self.distance[i] < self.alignment_distance) &  (self.angle[i] < self.alignment_angle)]
+			# ali_agents_v = v_that[ (self.distance[i] < self.alignment_distance) &  (self.angle[i] < self.alignment_angle)]
 
 			# self.dv_coh[i] = self.cohesion_force * (np.average(coh_agents_x, axis=0) - x_this) if (len(coh_agents_x) > 0) else 0
 			# self.dv_sep[i] = self.separation_force * (np.average(sep_agents_x, axis=0) - x_this) if (len(sep_agents_x) > 0) else 0
-			self.dv_ali[i] = self.alignment_force * (np.average(ali_agents_v, axis=0) - v_this) if (len(ali_agents_v) > 0) else 0
+			# self.dv_ali[i] = self.alignment_force * (np.average(ali_agents_v, axis=0) - v_this) if (len(ali_agents_v) > 0) else 0
 			
-			dist_center = np.linalg.norm(x_this)
-			self.dv_boundary[i] = - self.boundary_force * x_this * (dist_center - 1) / dist_center if (dist_center > 1) else 0
+			# dist_center = np.linalg.norm(x_this)
+			# self.dv_boundary[i] = - self.boundary_force * x_this * (dist_center - 1) / dist_center if (dist_center > 1) else 0
 
 		self.v += self.dv_coh + self.dv_sep + self.dv_ali + self.dv_boundary
 		for i in range(self.N):
