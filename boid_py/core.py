@@ -1,5 +1,6 @@
 
 import numpy as np
+import cupy as cp
 
 class boid:
 	"""
@@ -29,24 +30,24 @@ class boid:
 		self.boundary_force = 0.001
 
 		# array for positions and distance
-		self.x = np.random.rand(self.N, 3)*2 - 1
-		self.v = (np.random.rand(self.N, 3)*2 - 1)*self.min_vel
-		self.r = np.empty((self.N, 3))
+		self.x = cp.random.rand(self.N, 3)*2 - 1
+		self.v = (cp.random.rand(self.N, 3)*2 - 1)*self.min_vel
+		self.r = cp.empty((self.N, 3))
 
 		# array for tensor calculation
-		self.diff_x = np.zeros((self.N, self.N, 3))
-		self.distance = np.empty((self.N, self.N))
-		self.angle = np.empty((self.N, self.N))
+		self.diff_x = cp.zeros((self.N, self.N, 3))
+		self.distance = cp.empty((self.N, self.N))
+		self.angle = cp.empty((self.N, self.N))
 
-		self.coh_agents_x = np.empty((self.N, self.N, 3))
-		self.sep_agents_x = np.empty((self.N, self.N, 3))
-		self.ali_agents_v = np.empty((self.N, self.N, 3))
+		self.coh_agents_x = cp.empty((self.N, self.N, 3))
+		self.sep_agents_x = cp.empty((self.N, self.N, 3))
+		self.ali_agents_v = cp.empty((self.N, self.N, 3))
 		
 		# array for three forces
-		self.dv_coh = np.empty((self.N, 3))
-		self.dv_sep = np.empty((self.N, 3))
-		self.dv_ali = np.empty((self.N, 3))
-		self.dv_boundary = np.empty((self.N, 3))
+		self.dv_coh = cp.empty((self.N, 3))
+		self.dv_sep = cp.empty((self.N, 3))
+		self.dv_ali = cp.empty((self.N, 3))
+		self.dv_boundary = cp.empty((self.N, 3))
 
 	def update(self):
 		'''
@@ -60,11 +61,11 @@ class boid:
 		self.diff_x += self.x.reshape((-1, self.N, 3))
 		self.diff_x -= self.x.reshape((self.N, -1, 3))
 
-		self.distance = np.linalg.norm(self.diff_x, axis=2)
-		self.angle = np.arccos(
-						np.divide(
-							np.sum(np.multiply(self.v, self.diff_x), axis=2),
-							np.multiply(np.linalg.norm(self.v, axis=1) , np.linalg.norm(self.diff_x, axis=2))
+		self.distance = cp.linalg.norm(self.diff_x, axis=2)
+		self.angle = cp.arccos(
+						cp.divide(
+							cp.sum(cp.multiply(self.v, self.diff_x), axis=2),
+							cp.multiply(cp.linalg.norm(self.v, axis=1) , cp.linalg.norm(self.diff_x, axis=2))
 						)
 					)
 
@@ -75,10 +76,10 @@ class boid:
 		self.coh_agents_x += self.x
 		self.coh_agents_x[coh_agents_bool] = 0.0
 		
-		coh_agents_num = coh_agents_bool.shape[1] - np.count_nonzero(coh_agents_bool, axis=1)
+		coh_agents_num = coh_agents_bool.shape[1] - cp.count_nonzero(coh_agents_bool, axis=1)
 		coh_agents_num[coh_agents_num == 0] = 1
 		
-		self.dv_coh = self.cohesion_force*(np.divide(np.sum(self.coh_agents_x, axis=1).T, coh_agents_num).T - self.x)
+		self.dv_coh = self.cohesion_force*(cp.divide(cp.sum(self.coh_agents_x, axis=1).T, coh_agents_num).T - self.x)
 		
 		# Separation
 		sep_agents_bool = (self.distance > self.separation_distance) | (self.angle > self.separation_angle)
@@ -87,10 +88,10 @@ class boid:
 		self.sep_agents_x += self.x
 		self.sep_agents_x[sep_agents_bool] = 0.0
 		
-		sep_agents_num = sep_agents_bool.shape[1] - np.count_nonzero(sep_agents_bool, axis=1)
+		sep_agents_num = sep_agents_bool.shape[1] - cp.count_nonzero(sep_agents_bool, axis=1)
 		sep_agents_num[sep_agents_num == 0] = 1
 		
-		self.dv_sep = self.separation_force*(np.divide(np.sum(self.sep_agents_x, axis=1).T, sep_agents_num).T - self.x)
+		self.dv_sep = self.separation_force*(cp.divide(cp.sum(self.sep_agents_x, axis=1).T, sep_agents_num).T - self.x)
 
 		# Alignment
 		ali_agents_bool = (self.distance > self.alignment_distance) | (self.angle > self.alignment_angle)
@@ -99,28 +100,28 @@ class boid:
 		self.ali_agents_v += self.v
 		self.ali_agents_v[ali_agents_bool] = 0.0
 		
-		ali_agents_num = ali_agents_bool.shape[1] - np.count_nonzero(ali_agents_bool, axis=1)
+		ali_agents_num = ali_agents_bool.shape[1] - cp.count_nonzero(ali_agents_bool, axis=1)
 		ali_agents_num[ali_agents_num == 0] = 1
 		
-		self.dv_ali = self.alignment_force*(np.divide(np.sum(self.ali_agents_v, axis=1).T, ali_agents_num).T - self.v)
+		self.dv_ali = self.alignment_force*(cp.divide(cp.sum(self.ali_agents_v, axis=1).T, ali_agents_num).T - self.v)
 
 		# Boundary
-		self.dist_center = np.linalg.norm(self.x, axis=1)
+		self.dist_center = cp.linalg.norm(self.x, axis=1)
 		dist_center_bool = (self.dist_center < 1)
-		self.dv_boundary = - self.boundary_force*np.multiply(
+		self.dv_boundary = - self.boundary_force*cp.multiply(
 				self.x.T, 
-				np.divide(self.dist_center-1, self.dist_center)
+				cp.divide(self.dist_center-1, self.dist_center)
 			).T
 		self.dv_boundary[dist_center_bool] = 0.0
 
 		# Update v
 		self.v += self.dv_coh + self.dv_sep + self.dv_ali + self.dv_boundary
 		
-		v_abs = np.linalg.norm(self.v, axis=1)
+		v_abs = cp.linalg.norm(self.v, axis=1)
 
 		min_vel_bool = (v_abs < self.min_vel)
-		self.v[min_vel_bool] = self.min_vel*np.divide(self.v[min_vel_bool].T, v_abs[min_vel_bool]).T
+		self.v[min_vel_bool] = self.min_vel*cp.divide(self.v[min_vel_bool].T, v_abs[min_vel_bool]).T
 		max_vel_bool = (v_abs > self.max_vel)
-		self.v[max_vel_bool] = self.max_vel*np.divide(self.v[max_vel_bool].T, v_abs[max_vel_bool]).T
+		self.v[max_vel_bool] = self.max_vel*cp.divide(self.v[max_vel_bool].T, v_abs[max_vel_bool]).T
 
 		self.x += self.v
