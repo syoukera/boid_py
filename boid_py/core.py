@@ -49,6 +49,14 @@ class boid:
 		self.diff_x += self.x.reshape((-1, self.N, 3))
 		self.diff_x -= self.x.reshape((self.N, -1, 3))
 
+		self.distance = np.linalg.norm(self.diff_x, axis=2)
+		self.angle = np.arccos(
+						np.divide(
+							np.sum(np.multiply(self.v, self.diff_x), axis=2),
+							np.multiply(np.linalg.norm(self.v, axis=1) , np.linalg.norm(self.diff_x, axis=2))
+						)
+					)
+
 		for i in range(self.N):
 			x_this = self.x[i]
 			v_this = self.v[i]
@@ -60,9 +68,9 @@ class boid:
 
 			# self.diff_x[i] = x_that - x_this
 			
-			self.distance[i] = np.linalg.norm(self.diff_x[i], axis=1)
-			self.angle[i] = np.arccos(np.dot(v_this, (self.diff_x[i]).T) / (np.linalg.norm(v_this) * \
-				    np.linalg.norm((self.diff_x[i]), axis=1)))
+			# self.distance[i] = np.linalg.norm(self.diff_x[i], axis=1)
+			# self.angle[i] = np.arccos(np.dot(v_this, (self.diff_x[i]).T) / (np.linalg.norm(v_this) * \
+			# 	    np.linalg.norm((self.diff_x[i]), axis=1)))
 			
 			coh_agents_x = x_that[ (self.distance[i] < self.cohesion_distance) &   (self.angle[i] < self.cohesion_angle)]
 			sep_agents_x = x_that[ (self.distance[i] < self.separation_distance) & (self.angle[i] < self.separation_angle)]
