@@ -10,7 +10,7 @@ class boid:
 		# attributes:
 		self.N = num_boid
 		# strength of force
-		self.cohesion_force = 0.08
+		self.cohesion_force = 0.0008
 		self.separation_force = 1.15
 		self.alignment_force = 1.0
 
