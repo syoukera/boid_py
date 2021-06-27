@@ -49,6 +49,13 @@ class boid:
 		self.dv_boundary = np.empty((self.N, 3))
 
 	def update(self):
+		'''
+		Update positions of boids
+		1. Calculate distance and angle for every pairs of bois 
+		2. Calculate dv for Cohesion, Separation, Alignment, and Boundary
+		3. Add dv to v
+		4. Add v to x
+		'''
 		self.diff_x *= 0.0
 		self.diff_x += self.x.reshape((-1, self.N, 3))
 		self.diff_x -= self.x.reshape((self.N, -1, 3))
@@ -72,6 +79,7 @@ class boid:
 		coh_agents_num[coh_agents_num == 0] = 1
 		
 		self.dv_coh = self.cohesion_force*(np.divide(np.sum(self.coh_agents_x, axis=1).T, coh_agents_num).T - self.x)
+		
 		# Separation
 		sep_agents_bool = (self.distance > self.separation_distance) | (self.angle > self.separation_angle)
 
