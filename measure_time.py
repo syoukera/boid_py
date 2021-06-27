@@ -1,3 +1,7 @@
+'''
+Measure execution time for updating 60 times
+'''
+
 from cProfile import Profile
 import pstats
 
