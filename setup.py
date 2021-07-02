@@ -13,12 +13,12 @@ with open('LICENSE') as f:
 
 setup(
     name='boid_py',
-    version='0.0.1',
+    version='0.0.2',
     description='A package for calculating positons of boids',
     long_description=readme,
     author='Akira Shioyoke',
     author_email='s.akira2986@gmail.com',
-    install_requires=['numpy'],
+    install_requires=['numpy', 'cupy'],
     url='https://github.com/syoukera/boid_py',
     license=license,
     packages=find_packages()
